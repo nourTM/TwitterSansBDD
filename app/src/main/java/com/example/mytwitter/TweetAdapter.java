@@ -1,10 +1,15 @@
 package com.example.mytwitter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.mytwitter.beans.Tweet;
 
 import java.util.List;
 
@@ -13,9 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class TweetAdapter extends RecyclerView.Adapter<TweetViewHolder> {
 
-    List<String> tweets;
+    MainActivity mainActivity;
+    List<Tweet> tweets;
 
-    public TweetAdapter(List<String> tweets) {
+    public TweetAdapter(List<Tweet> tweets, MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
         this.tweets = tweets;
     }
 
@@ -30,9 +37,10 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetViewHolder> {
     @Override
     public void onBindViewHolder(final TweetViewHolder holder, final int position) {
         holder.setItem(tweets.get(position));
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        // delete listener
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View v) {
                 AlertDialog.Builder confirm = new AlertDialog.Builder(v.getContext());
                 confirm.setTitle("Delete Tweet");
                 confirm.setIcon(android.R.drawable.ic_menu_delete);
@@ -40,15 +48,40 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetViewHolder> {
                 confirm.setPositiveButton(android.R.string.yes,
                         new DialogInterface.OnClickListener(){
                             public void onClick(DialogInterface dialog, int idBtn) {
-                                tweets.remove(position);
+                                if (mainActivity.tweet == tweets.get(position)){
+                                    tweets.remove(position);
+                                    if (tweets.size() != 0) mainActivity.tweet = tweets.get(0);
+                                    else mainActivity.tweet = null;
+                                    mainActivity.putElement();
+                                }else{
+                                    tweets.remove(position);
+                                }
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position,tweets.size());
                             }
                         });
                 confirm.setNegativeButton(android.R.string.no, null);
                 confirm.show();
+                return false;
             }
         });
+        // details listener
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int displaymode = mainActivity.getResources().getConfiguration().orientation;
+
+                if (displaymode == Configuration.ORIENTATION_PORTRAIT) {
+                    Intent intent = new Intent(mainActivity,DetailsActivity.class);
+                    intent.putExtra("pet",tweets.get(position));
+                    mainActivity.startActivity(intent);
+                }else{
+                    mainActivity.tweet = tweets.get(position);
+                    mainActivity.putElement();
+                }
+            }
+        });
+
     }
 
     @Override

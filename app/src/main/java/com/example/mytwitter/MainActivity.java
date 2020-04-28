@@ -2,6 +2,8 @@ package com.example.mytwitter;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,52 +16,29 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.mytwitter.beans.Tweet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    Dialog dialog;
-    RecyclerView   recyView;
+
+    public Tweet tweet;
+    DetailsFragment dfrag = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final List<String> tweets = new ArrayList<>();
-        tweets.add("Noor");
-        tweets.add("Mami");
-        recyView = (RecyclerView) findViewById(R.id.list);
-        recyView.setLayoutManager(new LinearLayoutManager(this));
-        recyView.setAdapter(new TweetAdapter(tweets));
-
-        dialog =  new Dialog(this);
-        dialog.setContentView(R.layout.dialogue);
-        dialog.setTitle("Tweet");
-        Button btnValider = (Button)
-                dialog.findViewById(R.id.dialog_btn_valider);
-
-        final TextView textDialogue = dialog.findViewById(R.id.dialog_libelle);
-        btnValider.setOnClickListener(new
-                                              View.OnClickListener() {
-                                                  @Override public void onClick(View v) {
-                                                      String tweet = textDialogue.getText().toString();
-                                                      tweets.add(tweet);
-                                                      dialog.cancel();
-                                                  }
-                                              });
-
+        FragmentManager manager = getSupportFragmentManager();
+        dfrag = (DetailsFragment) manager.findFragmentById(R.id.dfrag);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
+    public void putElement(){
+        if (dfrag != null) {
+            dfrag.setElements();
+        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        dialog.show();
-        return super.onOptionsItemSelected(item);
-    }
 }
